@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مبادرة الخوارزمي للتحدي | إشراف أ. بدر الذيب العامري</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#1e3a8a',
+                            lightBlue: '#3b82f6',
+                            gold: '#f59e0b',
+                            goldHover: '#d97706',
+                            dark: '#0f172a',
+                            surface: '#1e293b'
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Canvas Confetti for Celebration Effects -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Firebase App & Firestore Compatibility CDNs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(245, 158, 11, 0.4);
+            box-shadow: 0 12px 30px -10px rgba(245, 158, 11, 0.25);
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gold-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .gold-btn:hover {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(245, 158, 11, 0.5);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-100 overflow-x-hidden custom-scrollbar">
+
+    <!-- Navigation Bar -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-slate-700/50 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            
+            <!-- Logo & Title -->
+            <div class="flex items-center space-x-3 space-x-reverse cursor-pointer" onclick="showSection('homeSection')">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-blue-600 p-0.5 shadow-lg shadow-amber-500/20">
+                    <div class="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-between p-2">
+                        <i class="fa-solid fa-square-root-variable text-amber-400 text-2xl mx-auto"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide gold-gradient-text">مبادرة الخوارزمي للتحدي</h1>
+                    <p class="text-xs text-slate-400 flex items-center gap-1">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i> إشراف: أ. بدر الذيب العامري
+                    </p>
+                </div>
+            </div>
+
+            <!-- Sync Indicator & Navigation Action Buttons -->
+            <div class="flex items-center gap-3">
+                <!-- Sync Status Badge -->
+                <div id="syncBadge" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span id="syncText">مدرسة لبيد بن ربيعة</span>
+                </div>
+
+                <!-- Action Buttons -->
+                <button onclick="showSection('studentLoginSection')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600/50 text-slate-200 text-sm font-semibold transition flex items-center gap-2 shadow-md">
+                    <i class="fa-solid fa-user-graduate text-amber-400"></i>
+                    <span>دخول الطالب</span>
+                </button>
+
+                <button onclick="showTeacherLoginModal()" class="gold-btn px-4 py-2 rounded-xl text-slate-950 font-bold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>لوحة المعلم</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- SECTION 1: HOME PAGE -->
+        <section id="homeSection" class="space-y-12">
+            
+            <!-- Hero Banner & Intro -->
+            <div class="relative overflow-hidden rounded-3xl glass-panel p-8 md:p-12 border border-amber-500/20 shadow-2xl">
+                <div class="absolute -top-24 -left-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-24 -right-24 w-72 h-72 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 grid md:grid-cols-12 gap-8 items-center">
+                    <div class="md:col-span-8 space-y-6">
+                        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
+                            <i class="fa-solid fa-star"></i> التميز في التحصيل العلمي الرياضياتي
+                        </div>
+                        <h2 class="text-3xl md:text-5xl font-black text-white leading-tight">
+                            مبادرة <span class="gold-gradient-text">الخوارزمي للتحدي</span>
+                        </h2>
+                        <p class="text-slate-300 text-base md:text-lg leading-relaxed font-normal">
+                            مبادرة تعليمية متميزة تساعد الطالب على <strong class="text-amber-400">رفع مستواه التحصيلي</strong> وزيادة شغفه العلمي، وتضمن له الاستعداد الدائم للاختبارات والمسابقات في أي وقت وتحت كل الظروف.
+                        </p>
+                        
+                        <div class="pt-2 flex flex-wrap gap-4">
+                            <button onclick="showSection('studentLoginSection')" class="gold-btn px-6 py-3.5 rounded-xl font-bold text-slate-950 flex items-center gap-2 text-base">
+                                <i class="fa-solid fa-right-to-bracket"></i>
+                                <span>دخول حساب الطالب</span>
+                            </button>
+                            <a href="#ratingsSection" class="px-6 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold flex items-center gap-2 text-base transition">
+                                <i class="fa-solid fa-comments text-amber-400"></i>
+                                <span>تجارب وتقييمات الطلاب</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Supervisor Card -->
+                    <div class="md:col-span-4">
+                        <div class="glass-card p-6 rounded-2xl text-center border border-amber-500/30 relative">
+                            <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-tr from-amber-400 to-blue-600 p-1 mb-4 shadow-xl">
+                                <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center">
+                                    <i class="fa-solid fa-chalkboard-user text-4xl text-amber-400"></i>
+                                </div>
+                            </div>
+                            <span class="text-xs text-amber-400 font-semibold tracking-wider uppercase">مقدم ومُشرف المبادرة</span>
+                            <h3 class="text-xl font-bold text-white mt-1">أ. بدر الذيب العامري</h3>
+                            <p class="text-xs text-slate-400 mt-2">معلم رياضيات قدير ومبتكر للمبادرة لدعم وترقية أداء الطلاب وتحدي قدراتهم.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Counter Bar (Academic Year 2026/2027) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Total Completed Challenges Counter -->
+                <div class="glass-card p-6 rounded-2xl flex items-center gap-5 border-r-4 border-r-amber-500">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-400 text-2xl font-bold">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400 font-medium">عدد التحديات المتممة لعام 2026/2027</div>
+                        <div id="statCompletedChallenges" class="text-3xl font-black gold-gradient-text mt-1">0</div>
+                        <div class="text-[11px] text-emerald-400 flex items-center gap-1 mt-0.5">
+                            <i class="fa-solid fa-arrow-up-right-dots"></i> يتم التحديث تلقائياً وبشكل حي
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registered Students Counter -->
+                <div class="glass-card p-6 rounded-2xl flex items-center gap-5 border-r-4 border-r-blue-500">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-400 text-2xl font-bold">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400 font-medium">إجمالي الطلاب المقيدين</div>
+                        <div id="statTotalStudents" class="text-3xl font-black text-white mt-1">0</div>
+                        <div class="text-[11px] text-slate-400 mt-0.5">في مختلف المراحل والأنساق</div>
+                    </div>
+                </div>
+
+                <!-- Satisfaction Rating Summary -->
+                <div class="glass-card p-6 rounded-2xl flex items-center gap-5 border-r-4 border-r-emerald-500">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-2xl font-bold">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400 font-medium">متوسط التقييم العام للمبادرة</div>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span id="statAverageRating" class="text-3xl font-black text-white">5.0</span>
+                            <div id="statStars" class="text-amber-400 text-sm">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                        </div>
+                        <div id="statTotalReviews" class="text-[11px] text-slate-400 mt-0.5">بناءً على 0 تقييم</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Ratings & Reviews Section -->
+            <div id="ratingsSection" class="glass-panel p-8 rounded-3xl border border-slate-700/60 space-y-8">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-700/60 pb-6">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white flex items-center gap-3">
+                            <i class="fa-solid fa-comments text-amber-400"></i>
+                            <span>تقييمات وآراء حول المبادرة</span>
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-1">شاركنا رأيك وانطباعك حول مدى استفادتك من تحديات الخوارزمي</p>
+                    </div>
+
+                    <button onclick="toggleRatingForm()" class="gold-btn px-5 py-2.5 rounded-xl font-bold text-slate-950 text-sm flex items-center gap-2 self-start md:self-auto">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>إضافة تقييم جديد</span>
+                    </button>
+                </div>
+
+                <!-- Add Rating Form Collapsible -->
+                <div id="ratingFormContainer" class="hidden glass-card p-6 rounded-2xl border border-amber-500/30">
+                    <form onsubmit="handleRatingSubmit(event)" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">اسم التقيّم / الطالب / الزائر</label>
+                                <input type="text" id="reviewerName" required placeholder="أدخل اسمك الكريم..." class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none focus:border-amber-400 transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">التقييم بالنجوم</label>
+                                <div class="flex items-center gap-2 py-2">
+                                    <div id="starInputGroup" class="flex gap-2 text-2xl text-slate-600 cursor-pointer">
+                                        <i class="fa-solid fa-star hover:text-amber-400 transition" onclick="setStarRating(1)"></i>
+                                        <i class="fa-solid fa-star hover:text-amber-400 transition" onclick="setStarRating(2)"></i>
+                                        <i class="fa-solid fa-star hover:text-amber-400 transition" onclick="setStarRating(3)"></i>
+                                        <i class="fa-solid fa-star hover:text-amber-400 transition" onclick="setStarRating(4)"></i>
+                                        <i class="fa-solid fa-star hover:text-amber-400 transition" onclick="setStarRating(5)"></i>
+                                    </div>
+                                    <span id="starRatingLabel" class="text-xs font-bold text-amber-400 mr-2">5 من 5</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">تعليقك وتقييمك للمبادرة</label>
+                            <textarea id="reviewerComment" required rows="3" placeholder="اكتب رأيك هنا..." class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none focus:border-amber-400 transition custom-scrollbar"></textarea>
+                        </div>
+
+                        <div class="flex justify-end gap-3 pt-2">
+                            <button type="button" onclick="toggleRatingForm()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700">إلغاء</button>
+                            <button type="submit" class="gold-btn px-5 py-2 rounded-xl text-slate-950 text-xs font-bold">نشر التقييم</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Reviews Grid List -->
+                <div id="reviewsListGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Dynamic Rating Cards will be loaded here -->
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- SECTION 2: STUDENT LOGIN & PORTAL PAGE -->
+        <section id="studentLoginSection" class="hidden space-y-8">
+            
+            <!-- Student Login Card (When NOT logged in) -->
+            <div id="studentLoginFormCard" class="max-w-md mx-auto glass-panel p-8 rounded-3xl border border-amber-500/20 shadow-2xl">
+                <div class="text-center space-y-3 mb-6">
+                    <div class="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-400 text-3xl flex items-center justify-center mx-auto border border-amber-500/30">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">تسجيل دخول الطالب</h2>
+                    <p class="text-xs text-slate-400">أدخل اسم المستخدم وكلمة المرور المسجلة لك بواسطة المعلم</p>
+                </div>
+
+                <form onsubmit="handleStudentLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">اسم المستخدم الخاص بالمبادرة</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-user absolute right-3.5 top-3.5 text-slate-500 text-sm"></i>
+                            <input type="text" id="studentUsernameInput" required placeholder="مثال: std_ahmed" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl pr-10 pl-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-400 transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">كلمة السر</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-key absolute right-3.5 top-3.5 text-slate-500 text-sm"></i>
+                            <input type="password" id="studentPasswordInput" required placeholder="••••••••" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl pr-10 pl-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-400 transition">
+                        </div>
+                    </div>
+
+                    <div id="studentLoginError" class="hidden text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 text-center"></div>
+
+                    <button type="submit" class="w-full gold-btn py-3 rounded-xl font-bold text-slate-950 text-sm flex items-center justify-center gap-2 shadow-lg">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>دخول للملف الشخصي</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Student Profile View (When Logged In) -->
+            <div id="studentDashboardView" class="hidden space-y-8">
+                
+                <!-- Student Header Banner -->
+                <div class="glass-panel p-6 md:p-8 rounded-3xl border border-amber-500/30 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="flex items-center gap-5">
+                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-blue-600 to-amber-500 p-1 shadow-lg">
+                            <div class="w-full h-full bg-slate-900 rounded-[12px] flex items-center justify-center text-3xl text-amber-400">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-3">
+                                <h2 id="stViewName" class="text-2xl font-bold text-white">اسم الطالب</h2>
+                                <span id="stViewGrade" class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 text-xs font-semibold">الصف</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-1 flex items-center gap-2">
+                                <span>اسم المستخدم: <strong id="stViewUsername" class="text-amber-400">@username</strong></span>
+                                <span>•</span>
+                                <span>مبادرة الخوارزمي للتحدي 2026/2027</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <button onclick="logoutStudent()" class="px-4 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 text-xs font-bold transition flex items-center gap-2">
+                        <i class="fa-solid fa-power-off"></i>
+                        <span>تسجيل الخروج</span>
+                    </button>
+                </div>
+
+                <!-- Student Progress Summary & Statistics -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="glass-card p-6 rounded-2xl">
+                        <div class="text-xs text-slate-400 mb-1">التحديات المنفذة</div>
+                        <div class="text-3xl font-black text-white" id="stViewCount">0</div>
+                        <p class="text-[11px] text-slate-500 mt-1">تحديات منجزة ومسجلة بالنظام</p>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl">
+                        <div class="text-xs text-slate-400 mb-1">متوسط الدرجات المكتسبة</div>
+                        <div class="text-3xl font-black gold-gradient-text" id="stViewAvgScore">0%</div>
+                        <p class="text-[11px] text-slate-500 mt-1">معدل الإنجاز التراكمي</p>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl">
+                        <div class="text-xs text-slate-400 mb-1">المستوى التحصيلي الحالي</div>
+                        <div class="text-xl font-bold text-emerald-400 mt-2" id="stViewLevelText">متميز جداً</div>
+                        <div class="w-full bg-slate-800 rounded-full h-2 mt-2 overflow-hidden">
+                            <div id="stViewProgressBar" class="bg-gradient-to-r from-amber-500 to-emerald-400 h-full w-0 transition-all duration-700"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Completed Challenges Detailed List -->
+                <div class="glass-panel p-8 rounded-3xl border border-slate-700/60 space-y-6">
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-amber-400"></i>
+                        <span>سجل التحديات ودرجات الاختبارات التفصيلية</span>
+                    </h3>
+
+                    <div id="stChallengesList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Dynamic Student Challenges Cards -->
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- SECTION 3: TEACHER ADMIN DASHBOARD -->
+        <section id="teacherDashboardSection" class="hidden space-y-8">
+            
+            <!-- Dashboard Top Action Bar -->
+            <div class="glass-panel p-6 rounded-3xl border border-amber-500/30 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 text-2xl flex items-center justify-center border border-amber-500/30">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">لوحة تحكم المعلم (المشرف العام)</h2>
+                        <p class="text-xs text-slate-400">إدارة حسابات الطلاب، تسجيل الدرجات، والمتابعة اللحظية</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+                    <button onclick="openAddStudentModal()" class="gold-btn px-4 py-2.5 rounded-xl font-bold text-slate-950 text-xs flex items-center gap-2 shadow-lg">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>إضافة طالب جديد</span>
+                    </button>
+                    <button onclick="logoutTeacher()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-rose-400 text-xs font-bold transition flex items-center gap-2">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>خروج المشرف</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Admin Stats Row -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass-card p-5 rounded-2xl">
+                    <div class="text-xs text-slate-400">إجمالي الطلاب</div>
+                    <div id="admStatStudents" class="text-2xl font-black text-white mt-1">0</div>
+                </div>
+                <div class="glass-card p-5 rounded-2xl">
+                    <div class="text-xs text-slate-400">إجمالي التحديات المكتملة</div>
+                    <div id="admStatChallenges" class="text-2xl font-black text-amber-400 mt-1">0</div>
+                </div>
+                <div class="glass-card p-5 rounded-2xl">
+                    <div class="text-xs text-slate-400">أعلى درجة محققة</div>
+                    <div id="admStatTopScore" class="text-2xl font-black text-emerald-400 mt-1">0</div>
+                </div>
+                <div class="glass-card p-5 rounded-2xl">
+                    <div class="text-xs text-slate-400">إجمالي التقييمات</div>
+                    <div id="admStatReviews" class="text-2xl font-black text-blue-400 mt-1">0</div>
+                </div>
+            </div>
+
+            <!-- Students Management Table/Grid -->
+            <div class="glass-panel p-6 rounded-3xl border border-slate-700/60 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-users-gear text-amber-400"></i>
+                        <span>قائمة الطلاب المسجلين بالمبادرة</span>
+                    </h3>
+
+                    <!-- Table Search Input -->
+                    <div class="relative w-full sm:w-64">
+                        <i class="fa-solid fa-search absolute right-3 top-3 text-slate-500 text-xs"></i>
+                        <input type="text" id="adminSearchStudent" oninput="renderAdminStudentsTable()" placeholder="بحث باسم الطالب أو الصف..." class="w-full bg-slate-900/80 border border-slate-700 rounded-xl pr-9 pl-4 py-2 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+                    </div>
+                </div>
+
+                <!-- Students Responsive Table -->
+                <div class="overflow-x-auto rounded-2xl border border-slate-700/50">
+                    <table class="w-full text-right border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900/80 text-xs text-amber-400 font-bold border-b border-slate-700">
+                                <th class="p-4">اسم الطالب</th>
+                                <th class="p-4">الصف</th>
+                                <th class="p-4">اسم المستخدم</th>
+                                <th class="p-4">كلمة السر</th>
+                                <th class="p-4">التحديات والدرجات</th>
+                                <th class="p-4 text-center">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminStudentsTableBody" class="divide-y divide-slate-800 text-xs text-slate-200">
+                            <!-- Dynamic Table Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- TEACHER LOGIN MODAL -->
+    <div id="teacherLoginModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-md p-8 rounded-3xl border border-amber-500/30 shadow-2xl space-y-6 relative animate-fade-in">
+            <button onclick="closeTeacherLoginModal()" class="absolute top-5 left-5 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="text-center space-y-2">
+                <div class="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 text-2xl flex items-center justify-center mx-auto border border-amber-500/30">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white">تسجيل دخول المعلم المشرف</h3>
+                <p class="text-xs text-slate-400">قسم خاص ومحمي ببيانات الاعتماد للمعلم</p>
+            </div>
+
+            <form onsubmit="handleTeacherLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">اسم المستخدم</label>
+                    <input type="text" id="teacherUsernameInput" required placeholder="t.b123" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-400">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">كلمة السر المحمية</label>
+                    <input type="password" id="teacherPasswordInput" required placeholder="••••••••••••" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-400">
+                </div>
+
+                <div id="teacherLoginError" class="hidden text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 text-center"></div>
+
+                <button type="submit" class="w-full gold-btn py-3 rounded-xl font-bold text-slate-950 text-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-unlock"></i>
+                    <span>تأكيد ودخول اللوحة</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ADD / EDIT STUDENT MODAL -->
+    <div id="studentFormModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-lg p-8 rounded-3xl border border-amber-500/30 shadow-2xl space-y-6 relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <button onclick="closeStudentModal()" class="absolute top-5 left-5 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <h3 id="studentModalTitle" class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-user-plus text-amber-400"></i>
+                <span>إضافة طالب جديد</span>
+            </h3>
+
+            <form onsubmit="handleSaveStudent(event)" class="space-y-4">
+                <input type="hidden" id="modalStudentId">
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">اسم الطالب الرباعي</label>
+                    <input type="text" id="modalStudentName" required placeholder="مثال: أحمد بن محمد العامري" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">الصف / الشعبة</label>
+                        <input type="text" id="modalStudentGrade" required placeholder="مثال: التاسع / 1" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">اسم المستخدم للطالب</label>
+                        <input type="text" id="modalStudentUsername" required placeholder="مثال: std_ahmed1" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">كلمة السر للطالب</label>
+                    <input type="text" id="modalStudentPassword" required placeholder="مثال: pass123" class="w-full bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" onclick="closeStudentModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700">إلغاء</button>
+                    <button type="submit" class="gold-btn px-6 py-2 rounded-xl text-slate-950 text-xs font-bold">حفظ الطالب</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- MANAGE CHALLENGES & GRADES MODAL -->
+    <div id="studentChallengesModal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-2xl p-8 rounded-3xl border border-amber-500/30 shadow-2xl space-y-6 relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <button onclick="closeChallengesModal()" class="absolute top-5 left-5 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div>
+                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-award text-amber-400"></i>
+                    <span>إدارة درجات وتحديات الطالب: <span id="modalManageStudentName" class="text-amber-400"></span></span>
+                </h3>
+                <p class="text-xs text-slate-400 mt-1">تسجيل وتعديل التحديات التي تم إتمامها لهذا الطالب</p>
+            </div>
+
+            <!-- Add Challenge Row Input -->
+            <div class="glass-card p-4 rounded-2xl border border-slate-700 space-y-3">
+                <h4 class="text-xs font-bold text-amber-300">إضافة تحدي جديد للطالب:</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                    <input type="text" id="newChallengeTitle" placeholder="اسم التحدي (مثال: تحدي المعادلات الأسبوعي)" class="sm:col-span-7 bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+                    <input type="number" id="newChallengeScore" placeholder="الدرجة (من 100)" min="0" max="100" class="sm:col-span-3 bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+                    <button onclick="addNewChallengeToStudent()" class="sm:col-span-2 gold-btn rounded-xl py-2 text-xs font-bold text-slate-950">إضافة</button>
+                </div>
+            </div>
+
+            <!-- Current Challenges List -->
+            <div class="space-y-2">
+                <h4 class="text-xs font-bold text-slate-300">التحديات والدرجات الحالية:</h4>
+                <div id="modalStudentChallengesContainer" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-1">
+                    <!-- Dynamic Rows -->
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button onclick="closeChallengesModal()" class="gold-btn px-6 py-2 rounded-xl text-slate-950 text-xs font-bold">تم وإغلاق</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-slate-800 glass-panel py-6 text-center text-xs text-slate-400">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+                جميع الحقوق محفوظة © 2026/2027 — <strong class="text-amber-400">مبادرة الخوارزمي للتحدي</strong>
+            </div>
+            <div>
+                إشراف المعلم القدير: <span class="text-slate-200 font-semibold">أ. بدر الذيب العامري</span>
+            </div>
+        </div>
+    </footer>
+
+
+    <script>
+        /* ----------------------------------------------------
+           1. Application State & Global Credentials
+        ---------------------------------------------------- */
+        const TEACHER_AUTH = {
+            username: "t.b123",
+            password: "t.b12@23.9@2.0"
+        };
+
+        // Application State
+        let state = {
+            students: [],
+            reviews: [],
+            currentLoggedInStudent: null,
+            isTeacherLoggedIn: false,
+            editingStudentId: null,
+            selectedRatingStars: 5,
+            useFirebase: false
+        };
+
+        // Initial Seed Mock Data
+        const initialSeedData = {
+            students: [
+                {
+                    id: "std_1",
+                    name: "سالم بن أحمد العامري",
+                    grade: "الصف التاسع / 1",
+                    username: "salem.2026",
+                    password: "123",
+                    challenges: [
+                        { id: "c1", title: "تحدي الجبر المتقدم", score: 95, date: "2026-10-01" },
+                        { id: "c2", title: "تحدي الهندسة المستوية", score: 100, date: "2026-10-05" }
+                    ]
+                },
+                {
+                    id: "std_2",
+                    name: "خالد بن محمد البوسعيدي",
+                    grade: "الصف العاشر / 2",
+                    username: "khaled.m",
+                    password: "123",
+                    challenges: [
+                        { id: "c3", title: "تحدي حساب المثلثات", score: 90, date: "2026-10-04" }
+                    ]
+                }
+            ],
+            reviews: [
+                {
+                    id: "rev_1",
+                    name: "الطالب / سالم العامري",
+                    stars: 5,
+                    comment: "مبادرة ممتازة جداً وساعدتني كثيراً في فهم واستيعاب مسائل الرياضيات الصعبة بكل سهولة ويسر. كل الشكر لأستاذنا الفاضل بدر الذيب العامري.",
+                    date: "2026-10-06"
+                },
+                {
+                    id: "rev_2",
+                    name: "ولي أمر طالب",
+                    stars: 5,
+                    comment: "مبادرة رائعة تعزز روح التنافس الشريف بين الطلاب وترفع مستواهم التحصيلي بشكل ملحوظ.",
+                    date: "2026-10-08"
+                }
+            ]
+        };
+
+        /* ----------------------------------------------------
+           2. Firebase Integration & Fallback Sync
+        ---------------------------------------------------- */
+        let db = null;
+        let appId = typeof __app_id !== 'undefined' ? __app_id : 'khwarizmi-challenge-app';
+
+        try {
+            // Attempt Firebase initialization using provided or default config
+            let firebaseConfig = null;
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                firebaseConfig = JSON.parse(__firebase_config);
+            } else {
+                // Public demo config fallback for seamless offline/online behavior
+                firebaseConfig = {
+                    apiKey: "AIzaSyDemoConfigKeyForKhwarizmiApp2026",
+                    authDomain: "khwarizmi-app.firebaseapp.com",
+                    projectId: "khwarizmi-app",
+                    storageBucket: "khwarizmi-app.appspot.com",
+                    messagingSenderId: "1234567890",
+                    appId: "1:1234567890:web:khwarizmi1234"
+                };
+            }
+
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.firestore();
+            state.useFirebase = true;
+            updateSyncStatus(true, "متصل بالسحابة اللحظية");
+        } catch (err) {
+            console.warn("Firebase fallback mode activated (using LocalStorage sync):", err);
+            state.useFirebase = false;
+            updateSyncStatus(false, "وضع الحفظ المحلي");
+        }
+
+        function updateSyncStatus(isCloud, text) {
+            const badge = document.getElementById('syncBadge');
+            const syncText = document.getElementById('syncText');
+            if (!badge || !syncText) return;
+            badge.classList.remove('hidden');
+            syncText.textContent = text;
+        }
+
+        // Initialize Realtime Sync Listeners
+        function initDataListeners() {
+            if (state.useFirebase && db) {
+                // Subscribe to Students Collection Path (Strict Path Compliance)
+                db.collection('artifacts').doc(appId).collection('public').doc('data').collection('students')
+                  .onSnapshot((snapshot) => {
+                      let docs = [];
+                      snapshot.forEach(doc => {
+                          docs.push({ id: doc.id, ...doc.data() });
+                      });
+                      if (docs.length === 0 && !localStorage.getItem('khwarizmi_seeded')) {
+                          seedInitialFirebaseData();
+                      } else {
+                          state.students = docs;
+                          onDataUpdated();
+                      }
+                  }, (err) => {
+                      console.error("Firestore student sync error:", err);
+                      loadFromLocalStorage();
+                  });
+
+                // Subscribe to Reviews Collection
+                db.collection('artifacts').doc(appId).collection('public').doc('data').collection('reviews')
+                  .onSnapshot((snapshot) => {
+                      let docs = [];
+                      snapshot.forEach(doc => {
+                          docs.push({ id: doc.id, ...doc.data() });
+                      });
+                      if (docs.length === 0 && !localStorage.getItem('khwarizmi_seeded')) {
+                          // Seed initial reviews
+                      } else {
+                          state.reviews = docs;
+                          onDataUpdated();
+                      }
+                  }, (err) => {
+                      console.error("Firestore reviews sync error:", err);
+                      loadFromLocalStorage();
+                  });
+            } else {
+                loadFromLocalStorage();
+            }
+        }
+
+        // Seed Initial Data if cloud DB is clean
+        async function seedInitialFirebaseData() {
+            localStorage.setItem('khwarizmi_seeded', 'true');
+            for (let st of initialSeedData.students) {
+                await saveStudentToCloud(st);
+            }
+            for (let rv of initialSeedData.reviews) {
+                await saveReviewToCloud(rv);
+            }
+        }
+
+        // Load LocalStorage Fallback
+        function loadFromLocalStorage() {
+            const localSt = localStorage.getItem('khwarizmi_students');
+            const localRv = localStorage.getItem('khwarizmi_reviews');
+
+            if (localSt) {
+                state.students = JSON.parse(localSt);
+            } else {
+                state.students = initialSeedData.students;
+                localStorage.setItem('khwarizmi_students', JSON.stringify(state.students));
+            }
+
+            if (localRv) {
+                state.reviews = JSON.parse(localRv);
+            } else {
+                state.reviews = initialSeedData.reviews;
+                localStorage.setItem('khwarizmi_reviews', JSON.stringify(state.reviews));
+            }
+
+            onDataUpdated();
+        }
+
+        // Save State Changes to Cloud or LocalStorage
+        async function saveStudentToCloud(studentData) {
+            if (state.useFirebase && db) {
+                try {
+                    await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('students')
+                            .doc(studentData.id).set(studentData, { merge: true });
+                } catch (e) {
+                    console.error("Error writing student to Firestore:", e);
+                }
+            }
+            // Sync LocalStorage backup
+            localStorage.setItem('khwarizmi_students', JSON.stringify(state.students));
+        }
+
+        async function deleteStudentFromCloud(studentId) {
+            if (state.useFirebase && db) {
+                try {
+                    await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('students')
+                            .doc(studentId).delete();
+                } catch (e) {
+                    console.error("Error deleting student:", e);
+                }
+            }
+            state.students = state.students.filter(s => s.id !== studentId);
+            localStorage.setItem('khwarizmi_students', JSON.stringify(state.students));
+            onDataUpdated();
+        }
+
+        async function saveReviewToCloud(reviewData) {
+            if (state.useFirebase && db) {
+                try {
+                    await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('reviews')
+                            .doc(reviewData.id).set(reviewData, { merge: true });
+                } catch (e) {
+                    console.error("Error writing review:", e);
+                }
+            }
+            state.reviews.unshift(reviewData);
+            localStorage.setItem('khwarizmi_reviews', JSON.stringify(state.reviews));
+            onDataUpdated();
+        }
+
+        // Central Data Change Handler
+        function onDataUpdated() {
+            renderCounters();
+            renderReviews();
+            
+            if (state.currentLoggedInStudent) {
+                // Refresh current student session data
+                const updatedSt = state.students.find(s => s.id === state.currentLoggedInStudent.id);
+                if (updatedSt) {
+                    state.currentLoggedInStudent = updatedSt;
+                    renderStudentDashboard();
+                }
+            }
+
+            if (state.isTeacherLoggedIn) {
+                renderAdminDashboard();
+            }
+        }
+
+
+        /* ----------------------------------------------------
+           3. UI Navigation & View Switching
+        ---------------------------------------------------- */
+        function showSection(sectionId) {
+            ['homeSection', 'studentLoginSection', 'teacherDashboardSection'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+
+            const target = document.getElementById(sectionId);
+            if (target) target.classList.remove('hidden');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* ----------------------------------------------------
+           4. Global Stats Counter Calculation
+        ---------------------------------------------------- */
+        function renderCounters() {
+            // Calculate Completed Challenges
+            let totalChallenges = 0;
+            state.students.forEach(st => {
+                if (st.challenges && Array.isArray(st.challenges)) {
+                    totalChallenges += st.challenges.length;
+                }
+            });
+
+            document.getElementById('statCompletedChallenges').innerText = totalChallenges;
+            document.getElementById('statTotalStudents').innerText = state.students.length;
+
+            // Calculate Reviews Avg
+            if (state.reviews.length > 0) {
+                const totalStars = state.reviews.reduce((acc, r) => acc + (Number(r.stars) || 5), 0);
+                const avg = (totalStars / state.reviews.length).toFixed(1);
+                document.getElementById('statAverageRating').innerText = avg;
+                document.getElementById('statTotalReviews').innerText = `بناءً على ${state.reviews.length} تقييم`;
+            } else {
+                document.getElementById('statAverageRating').innerText = "5.0";
+                document.getElementById('statTotalReviews').innerText = `بناءً على 0 تقييم`;
+            }
+        }
+
+
+        /* ----------------------------------------------------
+           5. Reviews & Ratings Logic
+        ---------------------------------------------------- */
+        function toggleRatingForm() {
+            const container = document.getElementById('ratingFormContainer');
+            container.classList.toggle('hidden');
+        }
+
+        function setStarRating(rating) {
+            state.selectedRatingStars = rating;
+            document.getElementById('starRatingLabel').innerText = `${rating} من 5`;
+            const stars = document.querySelectorAll('#starInputGroup i');
+            stars.forEach((star, idx) => {
+                if (idx < rating) {
+                    star.className = 'fa-solid fa-star text-amber-400';
+                } else {
+                    star.className = 'fa-solid fa-star text-slate-600';
+                }
+            });
+        }
+
+        async function handleRatingSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('reviewerName').value.trim();
+            const comment = document.getElementById('reviewerComment').value.trim();
+
+            if (!name || !comment) return;
+
+            const newReview = {
+                id: 'rev_' + Date.now(),
+                name: name,
+                stars: state.selectedRatingStars,
+                comment: comment,
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            await saveReviewToCloud(newReview);
+
+            // Reset form
+            document.getElementById('reviewerName').value = '';
+            document.getElementById('reviewerComment').value = '';
+            setStarRating(5);
+            toggleRatingForm();
+
+            // Trigger celebration confetti
+            confetti({ particleCount: 80, spread: 60, origin: { y: 0.8 } });
+        }
+
+        function renderReviews() {
+            const container = document.getElementById('reviewsListGrid');
+            if (!container) return;
+
+            if (state.reviews.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-8 text-slate-500 text-sm">
+                        لا توجد تقييمات حالية. كن أول من يضع تقييماً لمبادرة الخوارزمي!
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = state.reviews.map(r => {
+                let starsHtml = '';
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= r.stars) {
+                        starsHtml += `<i class="fa-solid fa-star text-amber-400"></i>`;
+                    } else {
+                        starsHtml += `<i class="fa-solid fa-star text-slate-700"></i>`;
+                    }
+                }
+
+                return `
+                    <div class="glass-card p-5 rounded-2xl flex flex-col justify-between space-y-3">
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-sm text-white">${escapeHtml(r.name)}</span>
+                                <div class="text-xs flex gap-1">${starsHtml}</div>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed">${escapeHtml(r.comment)}</p>
+                        </div>
+                        <div class="text-[10px] text-slate-500 text-left">${r.date || '2026-10-09'}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+
+        /* ----------------------------------------------------
+           6. Student Portal Logic
+        ---------------------------------------------------- */
+        function handleStudentLogin(e) {
+            e.preventDefault();
+            const usernameInput = document.getElementById('studentUsernameInput').value.trim();
+            const passwordInput = document.getElementById('studentPasswordInput').value.trim();
+            const errDiv = document.getElementById('studentLoginError');
+
+            const foundStudent = state.students.find(s => 
+                s.username.toLowerCase() === usernameInput.toLowerCase() && s.password === passwordInput
+            );
+
+            if (foundStudent) {
+                errDiv.classList.add('hidden');
+                state.currentLoggedInStudent = foundStudent;
+                
+                document.getElementById('studentLoginFormCard').classList.add('hidden');
+                document.getElementById('studentDashboardView').classList.remove('hidden');
+
+                renderStudentDashboard();
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            } else {
+                errDiv.classList.remove('hidden');
+                errDiv.innerText = "اسم المستخدم أو كلمة المرور غير صحيحة. يرجى التواصل مع أ. بدر العامري للحصول على بيانات الدخول.";
+            }
+        }
+
+        function renderStudentDashboard() {
+            const st = state.currentLoggedInStudent;
+            if (!st) return;
+
+            document.getElementById('stViewName').innerText = st.name;
+            document.getElementById('stViewGrade').innerText = st.grade;
+            document.getElementById('stViewUsername').innerText = `@${st.username}`;
+
+            const challenges = st.challenges || [];
+            document.getElementById('stViewCount').innerText = challenges.length;
+
+            let avg = 0;
+            if (challenges.length > 0) {
+                const sum = challenges.reduce((acc, c) => acc + (Number(c.score) || 0), 0);
+                avg = Math.round(sum / challenges.length);
+            }
+
+            document.getElementById('stViewAvgScore').innerText = `${avg}%`;
+            document.getElementById('stViewProgressBar').style.width = `${avg}%`;
+
+            let levelText = "مبتدئ واعد";
+            if (avg >= 90) levelText = "متميز فائق ⭐⭐⭐";
+            else if (avg >= 75) levelText = "متقدم ومتفوق ⭐⭐";
+            else if (avg >= 50) levelText = "جيد جداً ومستمر ⭐";
+            document.getElementById('stViewLevelText').innerText = levelText;
+
+            // Render Challenges List
+            const listContainer = document.getElementById('stChallengesList');
+            if (challenges.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="col-span-full text-center py-8 text-slate-400 text-xs bg-slate-900/40 rounded-2xl border border-slate-800">
+                        لم يتم تسجيل درجات تحديات لك بعد. سيتم إضافتها قريباً بواسطة أ. بدر العامري!
+                    </div>
+                `;
+                return;
+            }
+
+            listContainer.innerHTML = challenges.map(c => `
+                <div class="glass-card p-4 rounded-2xl flex items-center justify-between border-r-4 border-r-amber-500">
+                    <div>
+                        <h4 class="font-bold text-sm text-white">${escapeHtml(c.title)}</h4>
+                        <span class="text-[10px] text-slate-400">${c.date || '2026/2027'}</span>
+                    </div>
+                    <div class="text-left">
+                        <span class="text-2xl font-black gold-gradient-text">${c.score}</span>
+                        <span class="text-xs text-slate-400">/ 100</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function logoutStudent() {
+            state.currentLoggedInStudent = null;
+            document.getElementById('studentDashboardView').classList.add('hidden');
+            document.getElementById('studentLoginFormCard').classList.remove('hidden');
+            document.getElementById('studentUsernameInput').value = '';
+            document.getElementById('studentPasswordInput').value = '';
+        }
+
+
+        /* ----------------------------------------------------
+           7. Teacher / Admin Panel Logic
+        ---------------------------------------------------- */
+        function showTeacherLoginModal() {
+            if (state.isTeacherLoggedIn) {
+                showSection('teacherDashboardSection');
+            } else {
+                document.getElementById('teacherLoginModal').classList.remove('hidden');
+            }
+        }
+
+        function closeTeacherLoginModal() {
+            document.getElementById('teacherLoginModal').classList.add('hidden');
+        }
+
+        function handleTeacherLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('teacherUsernameInput').value.trim();
+            const p = document.getElementById('teacherPasswordInput').value.trim();
+            const errDiv = document.getElementById('teacherLoginError');
+
+            if (u === TEACHER_AUTH.username && p === TEACHER_AUTH.password) {
+                errDiv.classList.add('hidden');
+                state.isTeacherLoggedIn = true;
+                closeTeacherLoginModal();
+                showSection('teacherDashboardSection');
+                renderAdminDashboard();
+            } else {
+                errDiv.classList.remove('hidden');
+                errDiv.innerText = "بيانات اعتماد المعلم غير صحيحة!";
+            }
+        }
+
+        function logoutTeacher() {
+            state.isTeacherLoggedIn = false;
+            showSection('homeSection');
+        }
+
+        function renderAdminDashboard() {
+            // Render Admin Summary
+            document.getElementById('admStatStudents').innerText = state.students.length;
+
+            let totalCh = 0;
+            let topScore = 0;
+            state.students.forEach(s => {
+                if (s.challenges) {
+                    totalCh += s.challenges.length;
+                    s.challenges.forEach(c => {
+                        if (c.score > topScore) topScore = c.score;
+                    });
+                }
+            });
+
+            document.getElementById('admStatChallenges').innerText = totalCh;
+            document.getElementById('admStatTopScore').innerText = topScore;
+            document.getElementById('admStatReviews').innerText = state.reviews.length;
+
+            renderAdminStudentsTable();
+        }
+
+        function renderAdminStudentsTable() {
+            const tbody = document.getElementById('adminStudentsTableBody');
+            if (!tbody) return;
+
+            const searchQuery = (document.getElementById('adminSearchStudent')?.value || '').toLowerCase();
+
+            const filtered = state.students.filter(s => 
+                s.name.toLowerCase().includes(searchQuery) || 
+                s.grade.toLowerCase().includes(searchQuery) ||
+                s.username.toLowerCase().includes(searchQuery)
+            );
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="p-6 text-center text-slate-500 text-xs">
+                            لا يوجد طلاب مطابقون لشروط البحث.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(s => {
+                const chCount = s.challenges ? s.challenges.length : 0;
+                return `
+                    <tr class="hover:bg-slate-800/50 transition">
+                        <td class="p-4 font-bold text-white">${escapeHtml(s.name)}</td>
+                        <td class="p-4 text-slate-300">${escapeHtml(s.grade)}</td>
+                        <td class="p-4 text-amber-400 font-mono">${escapeHtml(s.username)}</td>
+                        <td class="p-4 text-slate-400 font-mono">${escapeHtml(s.password)}</td>
+                        <td class="p-4">
+                            <button onclick="openManageChallengesModal('${s.id}')" class="px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 border border-blue-500/30 text-[11px] font-semibold transition">
+                                <i class="fa-solid fa-list-check ml-1"></i> إدارة التحديات (${chCount})
+                            </button>
+                        </td>
+                        <td class="p-4 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <button onclick="openEditStudentModal('${s.id}')" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 transition" title="تعديل البيانات">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button onclick="confirmDeleteStudent('${s.id}')" class="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition" title="حذف الطالب">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        /* ----------------------------------------------------
+           8. Admin Student Add / Edit Modal Logic
+        ---------------------------------------------------- */
+        function openAddStudentModal() {
+            state.editingStudentId = null;
+            document.getElementById('studentModalTitle').innerText = "إضافة طالب جديد للمبادرة";
+            document.getElementById('modalStudentId').value = '';
+            document.getElementById('modalStudentName').value = '';
+            document.getElementById('modalStudentGrade').value = '';
+            document.getElementById('modalStudentUsername').value = '';
+            document.getElementById('modalStudentPassword').value = '';
+
+            document.getElementById('studentFormModal').classList.remove('hidden');
+        }
+
+        function openEditStudentModal(studentId) {
+            const st = state.students.find(s => s.id === studentId);
+            if (!st) return;
+
+            state.editingStudentId = studentId;
+            document.getElementById('studentModalTitle').innerText = "تعديل بيانات الطالب";
+            document.getElementById('modalStudentId').value = st.id;
+            document.getElementById('modalStudentName').value = st.name;
+            document.getElementById('modalStudentGrade').value = st.grade;
+            document.getElementById('modalStudentUsername').value = st.username;
+            document.getElementById('modalStudentPassword').value = st.password;
+
+            document.getElementById('studentFormModal').classList.remove('hidden');
+        }
+
+        function closeStudentModal() {
+            document.getElementById('studentFormModal').classList.add('hidden');
+        }
+
+        async function handleSaveStudent(e) {
+            e.preventDefault();
+            const id = document.getElementById('modalStudentId').value;
+            const name = document.getElementById('modalStudentName').value.trim();
+            const grade = document.getElementById('modalStudentGrade').value.trim();
+            const username = document.getElementById('modalStudentUsername').value.trim();
+            const password = document.getElementById('modalStudentPassword').value.trim();
+
+            let targetStudent = null;
+
+            if (id) {
+                // Edit Existing
+                targetStudent = state.students.find(s => s.id === id);
+                if (targetStudent) {
+                    targetStudent.name = name;
+                    targetStudent.grade = grade;
+                    targetStudent.username = username;
+                    targetStudent.password = password;
+                }
+            } else {
+                // Create New Student
+                targetStudent = {
+                    id: 'std_' + Date.now(),
+                    name: name,
+                    grade: grade,
+                    username: username,
+                    password: password,
+                    challenges: []
+                };
+                state.students.push(targetStudent);
+            }
+
+            if (targetStudent) {
+                await saveStudentToCloud(targetStudent);
+            }
+
+            closeStudentModal();
+            onDataUpdated();
+        }
+
+        async function confirmDeleteStudent(studentId) {
+            const st = state.students.find(s => s.id === studentId);
+            if (!st) return;
+
+            // Simple custom confirmation UI modal replacement
+            if (window.confirm(`هل أنت تأكد من إزالة الطالب (${st.name}) من المبادرة؟`)) {
+                await deleteStudentFromCloud(studentId);
+            }
+        }
+
+
+        /* ----------------------------------------------------
+           9. Student Challenges & Grades Modal Logic
+        ---------------------------------------------------- */
+        let activeManagingStudentId = null;
+
+        function openManageChallengesModal(studentId) {
+            activeManagingStudentId = studentId;
+            const st = state.students.find(s => s.id === studentId);
+            if (!st) return;
+
+            document.getElementById('modalManageStudentName').innerText = st.name;
+            renderModalChallengesList(st);
+            document.getElementById('studentChallengesModal').classList.remove('hidden');
+        }
+
+        function closeChallengesModal() {
+            document.getElementById('studentChallengesModal').classList.add('hidden');
+            activeManagingStudentId = null;
+        }
+
+        function renderModalChallengesList(student) {
+            const container = document.getElementById('modalStudentChallengesContainer');
+            const challenges = student.challenges || [];
+
+            if (challenges.length === 0) {
+                container.innerHTML = `<div class="text-xs text-slate-500 py-4 text-center">لا توجد تحديات حالية مسجلة لهذا الطالب.</div>`;
+                return;
+            }
+
+            container.innerHTML = challenges.map((c, idx) => `
+                <div class="glass-card p-3 rounded-xl flex items-center justify-between">
+                    <div>
+                        <div class="font-bold text-xs text-white">${escapeHtml(c.title)}</div>
+                        <div class="text-[10px] text-slate-400">${c.date || '2026/2027'}</div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm font-bold text-amber-400">${c.score} / 100</span>
+                        <button onclick="removeChallengeFromStudent('${idx}')" class="text-rose-400 hover:text-rose-300 text-xs p-1">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function addNewChallengeToStudent() {
+            if (!activeManagingStudentId) return;
+
+            const st = state.students.find(s => s.id === activeManagingStudentId);
+            if (!st) return;
+
+            const titleInput = document.getElementById('newChallengeTitle');
+            const scoreInput = document.getElementById('newChallengeScore');
+
+            const title = titleInput.value.trim();
+            const score = Number(scoreInput.value);
+
+            if (!title || isNaN(score)) return;
+
+            if (!st.challenges) st.challenges = [];
+
+            st.challenges.push({
+                id: 'c_' + Date.now(),
+                title: title,
+                score: Math.min(100, Math.max(0, score)),
+                date: new Date().toISOString().split('T')[0]
+            });
+
+            await saveStudentToCloud(st);
+
+            titleInput.value = '';
+            scoreInput.value = '';
+
+            renderModalChallengesList(st);
+            onDataUpdated();
+        }
+
+        async function removeChallengeFromStudent(index) {
+            if (!activeManagingStudentId) return;
+            const st = state.students.find(s => s.id === activeManagingStudentId);
+            if (!st || !st.challenges) return;
+
+            st.challenges.splice(index, 1);
+            await saveStudentToCloud(st);
+
+            renderModalChallengesList(st);
+            onDataUpdated();
+        }
+
+        /* Helper Functions */
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, function(m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[m];
+            });
+        }
+
+        /* ----------------------------------------------------
+           10. Application Initialization
+        ---------------------------------------------------- */
+        window.addEventListener('DOMContentLoaded', () => {
+            initDataListeners();
+        });
+    </script>
+</body>
+</html>
